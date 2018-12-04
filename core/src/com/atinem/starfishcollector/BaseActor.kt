@@ -5,12 +5,10 @@ import com.badlogic.gdx.graphics.Texture
 import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
-import com.badlogic.gdx.math.Intersector
-import com.badlogic.gdx.math.MathUtils
-import com.badlogic.gdx.math.Polygon
-import com.badlogic.gdx.math.Vector2
+import com.badlogic.gdx.math.*
 import com.badlogic.gdx.scenes.scene2d.Actor
 import com.badlogic.gdx.scenes.scene2d.Stage
+import java.lang.ClassCastException
 import com.badlogic.gdx.utils.Array as ArrayGDX
 
 open class BaseActor(x: Float, y: Float, stage: Stage) : Actor() {
@@ -36,6 +34,8 @@ open class BaseActor(x: Float, y: Float, stage: Stage) : Actor() {
 
     var maxSpeed: Float = 1000f
     var deceleration: Float = 0f
+
+    
 
 
 
@@ -235,5 +235,68 @@ open class BaseActor(x: Float, y: Float, stage: Stage) : Actor() {
         }
         return null
     }
+
+    fun boundToWorld(){
+        if(x < 0f)
+            x = 0f
+        if(x + width > worldBounds.width)
+            x = worldBounds.width - width
+        if(y < 0f)
+            y = 0f
+        if(y + height > worldBounds.height)
+            y = worldBounds.height - height
+
+    }
+
+    fun alignCamera(){
+        val cam = stage.camera
+        val viewPort = stage.viewport
+
+        cam.position.set(x + originX, y + originY, 0f)
+
+        cam.position.x = MathUtils.clamp(
+                cam.position.x,
+                cam.viewportWidth / 2,
+                worldBounds.width - cam.viewportWidth / 2)
+
+        cam.position.y = MathUtils.clamp(
+                cam.position.y,
+                cam.viewportHeight / 2,
+                worldBounds.height - cam.viewportHeight / 2)
+
+        cam.update()
+    }
+
+    companion object {
+
+        private lateinit var worldBounds: Rectangle
+        
+        fun getList(stage: Stage, className: String): MutableList<BaseActor> {
+            val list = mutableListOf<BaseActor>()
+            try{
+                val theClass = Class.forName("com.atinem.starfishcollector.$className")
+                for(actor in stage.actors){
+                    if(theClass.isInstance(actor))
+                        list.add(actor as BaseActor)
+                }
+            } catch (error: ClassNotFoundException){
+                error.printStackTrace()
+            }
+            return list
+        }
+
+        fun count(stage: Stage, className: String): Int{
+            return getList(stage, className).size
+        }
+
+        fun setWorldBounds(width: Float, height: Float){
+            worldBounds = Rectangle(0f,0f,width,height)
+        }
+
+        fun setWorldBounds(actor: BaseActor) = setWorldBounds(actor.width,actor.height)
+
+    }
+
+
 
 }

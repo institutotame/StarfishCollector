@@ -1,30 +1,19 @@
 package com.atinem.starfishcollector
 
-import com.badlogic.gdx.ApplicationAdapter
-import com.badlogic.gdx.Gdx
-import com.badlogic.gdx.graphics.GL20
+import com.badlogic.gdx.Game
 import com.badlogic.gdx.scenes.scene2d.Stage
 
-abstract class GameBase : ApplicationAdapter() {
+abstract class GameBase : Game() {
     protected lateinit var mainStage: Stage
+    protected lateinit var uiStage: Stage
 
-    override fun create() {
-        mainStage = Stage()
-        initialize()
+    init {
+        game = this
     }
 
-    abstract fun initialize()
+    companion object {
+        protected var game: GameBase? = null
 
-    override fun render() {
-        val delta = Gdx.graphics.deltaTime
-        mainStage.act(delta)
-        update(delta)
-
-        Gdx.gl.glClearColor(0f,0f,0f,1f)
-        Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT)
-
-        mainStage.draw()
+        fun setActiveScreen(screen: BaseScreen) = game?.setScreen(screen)
     }
-
-    abstract fun update(delta: Float)
 }
