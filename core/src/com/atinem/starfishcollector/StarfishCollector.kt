@@ -10,6 +10,8 @@ class StarfishCollector : GameBase() {
 
     private lateinit var ocean: BaseActor
 
+    private lateinit var rock: Rock
+
 
 
     override fun initialize() {
@@ -20,9 +22,12 @@ class StarfishCollector : GameBase() {
         starfish = Starfish(380f, 380f, mainStage)
 
         turtle = Turtle(20f, 20f, mainStage)
+
+        rock = Rock(200f,200f,mainStage)
     }
 
     override fun update(delta: Float) {
+        turtle.preventOverlap(rock)
         if(turtle.overlaps(starfish) && !starfish.isCollected){
             starfish.collect()
 

@@ -215,4 +215,25 @@ open class BaseActor(x: Float, y: Float, stage: Stage) : Actor() {
         color.a = opacity
     }
 
+    fun preventOverlap(other: BaseActor): Vector2? {
+        val poly1 = this.getBoundaryPolygon()
+        val poly2 = other.getBoundaryPolygon()
+
+        if (poly1 != null && poly2 != null) {
+            if (!poly1.boundingRectangle.overlaps(poly2.boundingRectangle))
+                return null
+
+            val mtv = Intersector.MinimumTranslationVector()
+            val polygonOverlap = Intersector.overlapConvexPolygons(poly1, poly2, mtv)
+
+            if (!polygonOverlap)
+                return null
+
+            this.moveBy(mtv.normal.x * mtv.depth, mtv.normal.y * mtv.depth)
+
+            return mtv.normal
+        }
+        return null
+    }
+
 }
