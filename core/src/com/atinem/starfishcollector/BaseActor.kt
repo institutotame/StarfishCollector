@@ -6,13 +6,11 @@ import com.badlogic.gdx.graphics.g2d.Animation
 import com.badlogic.gdx.graphics.g2d.Batch
 import com.badlogic.gdx.graphics.g2d.TextureRegion
 import com.badlogic.gdx.math.*
-import com.badlogic.gdx.scenes.scene2d.Actor
+import com.badlogic.gdx.scenes.scene2d.Group
 import com.badlogic.gdx.scenes.scene2d.Stage
-import java.lang.ClassCastException
 import com.badlogic.gdx.utils.Array as ArrayGDX
 
-open class BaseActor(x: Float, y: Float, stage: Stage) : Actor() {
-
+open class BaseActor(x: Float, y: Float, stage: Stage) : Group(){
     var animation: Animation<TextureRegion>? = null
         set(value) {
             field = value
@@ -35,7 +33,7 @@ open class BaseActor(x: Float, y: Float, stage: Stage) : Actor() {
     var maxSpeed: Float = 1000f
     var deceleration: Float = 0f
 
-    
+
 
 
 
@@ -53,13 +51,13 @@ open class BaseActor(x: Float, y: Float, stage: Stage) : Actor() {
     }
 
     override fun draw(batch: Batch?, parentAlpha: Float) {
-        super.draw(batch, parentAlpha)
         batch?.color = color
         animation?.let {
             if(isVisible){
                 batch?.draw(it.getKeyFrame(elapsedTime),x,y,originX,originY,width,height,scaleX,scaleY,rotation)
             }
         }
+        super.draw(batch, parentAlpha)
     }
 
     fun loadAnimationFromFiles(fileName: Array<String>, frameDuration: Float, loop: Boolean): Animation<TextureRegion>{
@@ -267,14 +265,27 @@ open class BaseActor(x: Float, y: Float, stage: Stage) : Actor() {
         cam.update()
     }
 
+    fun wrapAroundWorld(){
+        if(x + width < 0f)
+            x = worldBounds.width
+        if(x > worldBounds.width)
+            x = -width
+        if(y + height < 0)
+            y = worldBounds.height
+        if(y > worldBounds.height)
+            y = -height
+    }
+
     companion object {
 
+        private const val PACKAGENAME: String = "com.atinem.starfishcollector"
+
         private lateinit var worldBounds: Rectangle
-        
+
         fun getList(stage: Stage, className: String): MutableList<BaseActor> {
             val list = mutableListOf<BaseActor>()
             try{
-                val theClass = Class.forName("com.atinem.starfishcollector.$className")
+                val theClass = Class.forName("$PACKAGENAME.$className")
                 for(actor in stage.actors){
                     if(theClass.isInstance(actor))
                         list.add(actor as BaseActor)
@@ -296,7 +307,4 @@ open class BaseActor(x: Float, y: Float, stage: Stage) : Actor() {
         fun setWorldBounds(actor: BaseActor) = setWorldBounds(actor.width,actor.height)
 
     }
-
-
-
 }
