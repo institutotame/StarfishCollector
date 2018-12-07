@@ -1,10 +1,24 @@
 package com.atinem.starfishcollector
 
+import com.badlogic.gdx.graphics.Color
+import com.badlogic.gdx.graphics.Color.CYAN
+import com.badlogic.gdx.graphics.Texture
+import com.badlogic.gdx.graphics.g2d.TextureRegion
+import com.badlogic.gdx.scenes.scene2d.Event
+import com.badlogic.gdx.scenes.scene2d.EventListener
+import com.badlogic.gdx.scenes.scene2d.InputEvent
 import com.badlogic.gdx.scenes.scene2d.actions.Actions
+import com.badlogic.gdx.scenes.scene2d.ui.Button
+import com.badlogic.gdx.scenes.scene2d.ui.Label
+import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable
 
 class LevelScreen : BaseScreen() {
+
     private lateinit var turtle: Turtle
+
     private var win: Boolean = false
+
+    private lateinit var starfishLabel: Label
 
     override fun initialize() {
         val ocean = BaseActor(0f,0f,mainStage)
@@ -23,6 +37,28 @@ class LevelScreen : BaseScreen() {
         Rock(100f,300f,mainStage)
         Rock(300f,350f,mainStage)
         Rock(450f,200f,mainStage)
+
+        starfishLabel = Label("Starfish left: ", BaseGame.labelStyle)
+        starfishLabel.color = Color.CYAN
+        starfishLabel.setPosition(20f, 520f)
+        uiStage.addActor(starfishLabel)
+
+        val buttonStyle = Button.ButtonStyle()
+
+        val buttonTex = Texture("undo.png")
+        val buttonRegion = TextureRegion(buttonTex)
+        buttonStyle.up = TextureRegionDrawable(buttonRegion)
+
+        val restartButton = Button(buttonStyle)
+        restartButton.color = Color.CYAN
+        restartButton.setPosition(720f, 520f)
+        uiStage.addActor(restartButton)
+
+        restartButton.addListener {
+            if((it as InputEvent).type == InputEvent.Type.touchDown)
+                StarfishGame.setActiveScreen(LevelScreen())
+            false
+        }
     }
 
     override fun update(delta: Float) {
@@ -50,5 +86,7 @@ class LevelScreen : BaseScreen() {
             youWinMessage.addAction(Actions.delay(1f))
             youWinMessage.addAction(Actions.after(Actions.fadeIn(1f)))
         }
+
+        starfishLabel.setText("Starfish Left: ${BaseActor.count(mainStage, "Starfish")}")
     }
 }

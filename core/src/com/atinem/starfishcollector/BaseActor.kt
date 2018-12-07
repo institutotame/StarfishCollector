@@ -248,7 +248,6 @@ open class BaseActor(x: Float, y: Float, stage: Stage) : Group(){
 
     fun alignCamera(){
         val cam = stage.camera
-        val viewPort = stage.viewport
 
         cam.position.set(x + originX, y + originY, 0f)
 
